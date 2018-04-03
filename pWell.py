@@ -1,7 +1,7 @@
 from Wafer import Wafer
 import matplotlib.pyplot as plt
 
-W = Wafer(0.002,'n',2.22e15,1.0e-9)
+W = Wafer(0.0012,'n',2.22e15,1.0e-9)
 x = []
 
 # Create x for plots
@@ -17,7 +17,7 @@ xj = W.extract_xj()
 print "xj"
 print xj
 print "Cs"
-print W.p_profile[0]
+print W.net_profile[0]
 plt.figure(1)
 plt.subplot(211)
 plt.title('P-well Predeposition')
@@ -42,7 +42,7 @@ xj = W.extract_xj()
 print "xj"
 print xj
 print "Cs"
-print W.p_profile[0]
+print W.net_profile[0]
 plt.figure(2)
 plt.subplot(211)
 plt.title('P-well Drivein')
@@ -66,7 +66,7 @@ xj = W.extract_xj()
 print "xj"
 print xj
 print "Cs"
-print W.p_profile[0]
+print W.net_profile[0]
 plt.figure(3)
 plt.subplot(211)
 plt.title('P+ S/D Predep')
@@ -90,7 +90,7 @@ xj = W.extract_xj()
 print "xj"
 print xj
 print "Cs"
-print W.p_profile[0]
+print W.net_profile[0]
 plt.figure(4)
 plt.subplot(211)
 plt.title('P+ S/D Drivein')
@@ -113,10 +113,8 @@ W.predep(2*60*60,950,'n',7e20)
 xj = W.extract_xj()
 print "xj"
 print xj
-print "Cs, p"
-print W.p_profile[0]
-print "Cs, n"
-print W.n_profile[0]
+print "Cs"
+print W.net_profile[0]
 plt.figure(5)
 plt.subplot(211)
 plt.title('N+ S/D Predeposition')
@@ -140,10 +138,8 @@ W.drivein(40*60,1000,'n', False, 2)
 xj = W.extract_xj()
 print "xj"
 print xj
-print "Cs, p"
-print W.p_profile[0]
-print "Cs, n"
-print W.n_profile[0]
+print "Cs"
+print W.net_profile[0]
 plt.figure(6)
 plt.subplot(211)
 plt.title('N+ S/D Drivein')

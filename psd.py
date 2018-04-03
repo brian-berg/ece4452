@@ -1,7 +1,7 @@
 from Wafer import Wafer
 import matplotlib.pyplot as plt
 
-W = Wafer(0.002,'n',2.22e15,1.0e-9)
+W = Wafer(0.0012,'n',2.22e15,1.0e-9)
 x = []
 
 # Create x for plots
@@ -16,7 +16,7 @@ xj = W.extract_xj()
 print "xj"
 print xj
 print "Cs"
-print W.p_profile[0]
+print W.net_profile[0]
 plt.figure(1)
 plt.subplot(211)
 plt.title('P+ S/D Predep')
@@ -40,7 +40,7 @@ xj = W.extract_xj()
 print "xj"
 print xj
 print "Cs"
-print W.p_profile[0]
+print W.net_profile[0]
 plt.figure(2)
 plt.subplot(211)
 plt.title('P+ S/D Drivein')
@@ -64,7 +64,7 @@ xj = W.extract_xj()
 print "xj"
 print xj
 print "Cs"
-print W.p_profile[0]
+print W.net_profile[0]
 plt.figure(3)
 plt.subplot(211)
 plt.title('N+ S/D Predeposition')
@@ -88,7 +88,7 @@ xj = W.extract_xj()
 print "xj"
 print xj
 print "Cs"
-print W.p_profile[0]
+print W.net_profile[0]
 plt.figure(4)
 plt.subplot(211)
 plt.title('N+ S/D Drivein')

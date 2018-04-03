@@ -15,7 +15,7 @@ class Wafer:
 		# Distance domain resolution in cm
 		self.res = res
 		
-		# Create initial domath.ping profile with background concentration
+		# Create initial doping profile with background concentration
 		self.n_profile = []
 		self.p_profile = []
 		self.net_profile = []
@@ -37,14 +37,33 @@ class Wafer:
 		# Positive doses are p, Negative doses are n
 		self.dose = []
 		
+		self.Dt = []
+		
 		# Activation Energy
 		self.Ea = 3.690
 		
 		
-	def diff_coeff(self, Temp):
+	def calc_Dt(self, time, Temp):
 		D = 10.500 * math.exp(-1.000 * self.Ea / (8.614e-5 * (Temp + 273.0)) )
+		print "D"
 		print D
-		return D
+		new_Dt = D * time
+		print "Dt"
+		print new_Dt
+		self.Dt.append(new_Dt)
+		print "Dt_eff"
+		print sum(self.Dt)
+		return sum(self.Dt)
+		
+	def updateDose(self):
+		n_dose_sum = 0
+		p_dose_sum = 0
+		for x in self.dose:
+			if x <= 0:
+				n_dose_sum = n_dose_sum + x
+			else:
+				p_dose_sum = p_dose_sum + x
+		self.dose = [n_dose_sum, p_dose_sum]
 	
 	def updateNetProfile(self):
 		for x in range(len(self.net_profile)):
@@ -57,7 +76,7 @@ class Wafer:
 				
 			self.abs_profile[x] = self.p_profile[x] - self.n_profile[x]
 		
-	def drivein(self, time, Temp, dop):
+	def drivein(self, time, Temp, dop, calcDt = True, Dt_steps = 0):
 		# Drives in one type of dopant
 		# Check for dopant type
 		if (dop != 'p' and dop != 'n'):
@@ -67,8 +86,12 @@ class Wafer:
 			print "Must predep before Drive-in!"
 		
 		# Calculate Dt
-		D = self.diff_coeff(Temp)
-		Dt = D * time
+		if calcDt:
+			Dt = self.calc_Dt(time, Temp)
+		elif not calcDt and Dt_steps > 0:
+			Dt = sum(self.Dt[-1*Dt_steps:])
+		else:
+			Dt = sum(self.Dt)
 		
 		for dose in self.dose:
 			if dose > 0 and dop == 'p':
@@ -77,13 +100,22 @@ class Wafer:
 					if new_profile < 0:
 						new_profile = 0.0
 					self.p_profile[x] = new_profile
-			if dose < 0 and dop == 'n':
+			if dose <= 0 and dop == 'n':
 				for x in range(len(self.n_profile)):
 					new_profile = -1.0 * dose / math.sqrt(math.pi * Dt) * math.exp(-1.0 * math.pow((x * self.res),2.0) / (4.0 * Dt))
 					if new_profile < 0:
 						new_profile = 0.0
 					self.n_profile[x] = new_profile
 
+		# Add in background doping
+		if dop == self.type:
+			if self.type == 'p':
+				for x in range(len(self.p_profile)):
+					self.p_profile[x] = self.p_profile[x] + self.bg_conc
+			if self.type == 'n':
+				for x in range(len(self.n_profile)):
+					self.n_profile[x] = self.n_profile[x] + self.bg_conc
+		
 		# Update Net Profile
 		self.updateNetProfile()
 			
@@ -96,11 +128,15 @@ class Wafer:
 			print "Invalid dopant type! Must be p or n!"
 		
 		# Calculation of Diffusion Coefficient
-		D = self.diff_coeff(Temp)
-		Dt = D * time
+		Dt = self.calc_Dt(time, Temp)
+		Dt = self.Dt[-1]
+		
 		# If previous depositions, perform drive-in
 		if len(self.dose) != 0:
-			drivein(time, Temp, dop)
+			if self.dose[0] != 0:
+				self.drivein(time, Temp, 'n', False)
+			if self.dose[1] != 0:
+				self.drivein(time, Temp, 'p', False)
 		
 		if dop == 'n':
 			for x in range(len(self.n_profile)):
@@ -119,6 +155,8 @@ class Wafer:
 			new_dose = 2.0 * conc / math.sqrt(math.pi) * math.sqrt(Dt)
 			self.dose.append(new_dose)
 		
+		# Update dose with sum of doses of the same type
+		self.updateDose()
 		# Update net profile
 		self.updateNetProfile()
 		# print self.net_profile
@@ -127,7 +165,7 @@ class Wafer:
 		xj = []
 		x2 = []
 		
-		# Get zero crossings from absolute domath.ping profile
+		# Get zero crossings from absolute doping profile
 		xj = numpy.where(numpy.diff(numpy.sign(self.abs_profile)))[0]
 		
 		# Convert zero crossing indices to real distance
